@@ -3,11 +3,12 @@ import Cookie from 'universal-cookie';
 
 export async function getTokenOrRefresh() {
     const cookie = new Cookie();
-    const speechToken = cookie.get('speech-token');
-
+    // const speechToken = cookie.get('speech-token');
+    const speechToken = undefined;
     if (speechToken === undefined) {
         try {
-            const res = await axios.get('/api/get-speech-token');
+            const res = await axios.get('https://localhost:7049/api/speech/get-speech-token');
+            console.log(res.data);
             const token = res.data.token;
             const region = res.data.region;
             cookie.set('speech-token', region + ':' + token, {maxAge: 540, path: '/'});
@@ -15,8 +16,8 @@ export async function getTokenOrRefresh() {
             console.log('Token fetched from back-end: ' + token);
             return { authToken: token, region: region };
         } catch (err) {
-            console.log(err.response.data);
-            return { authToken: null, error: err.response.data };
+            // console.log(err.response.data);
+            // return { authToken: null, error: err.response.data };
         }
     } else {
         console.log('Token fetched from cookie: ' + speechToken);
