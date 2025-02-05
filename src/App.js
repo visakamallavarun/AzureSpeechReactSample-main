@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { Container } from 'reactstrap';
 import { getTokenOrRefresh } from './token_util';
-import './custom.css'
-import { ResultReason } from 'microsoft-cognitiveservices-speech-sdk';
+import './custom.css';
 
 const speechsdk = require('microsoft-cognitiveservices-speech-sdk')
 
@@ -20,37 +19,8 @@ export default function App() {
     
         setDisplayText('Speak into your microphone...');
     
-        recognizer.recognizeOnceAsync(async (result) => {
-            if (result.reason === speechsdk.ResultReason.RecognizedSpeech) {
-                const recognizedText = result.text;
-                setDisplayText(`RECOGNIZED: Text=${recognizedText}`);
-    
-                // API call with recognized speech
-                try {
-                    const response = await fetch('https://localhost:7049/api/speech/selectProject', {
-                        method: 'POST',
-                        headers: {
-                            'Accept': '*/*',
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ speechValue: recognizedText }) // Match API format
-                    });
-    
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! Status: ${response.status}`);
-                    }
-    
-                    const responseData = await response.json();
-                    console.log('API Response:', responseData);
-                    setDisplayText(`API Response: ${JSON.stringify(responseData)}`);
-                } catch (error) {
-                    console.error('Error calling API:', error);
-                    setDisplayText('Error calling API. Check console for details.');
-                }
-            } else {
-                setDisplayText('ERROR: Speech was cancelled or could not be recognized. Ensure your microphone is working properly.');
-            }
-        });
+        recognizedText(recognizer);
+
     }
     
     
@@ -113,11 +83,15 @@ export default function App() {
         const audioConfig = speechsdk.AudioConfig.fromWavFileInput(audioFile);
         const recognizer = new speechsdk.SpeechRecognizer(speechConfig, audioConfig);
 
+        recognizedText(recognizer);
+    }
+
+    async function recognizedText(recognizer) {
         recognizer.recognizeOnceAsync(async (result) => {
             if (result.reason === speechsdk.ResultReason.RecognizedSpeech) {
                 const recognizedText = result.text;
                 setDisplayText(`RECOGNIZED: Text=${recognizedText}`);
-    
+
                 // API call with recognized speech
                 try {
                     const response = await fetch('https://localhost:7049/api/speech/selectProject', {
@@ -128,11 +102,11 @@ export default function App() {
                         },
                         body: JSON.stringify({ speechValue: recognizedText }) // Match API format
                     });
-    
+
                     if (!response.ok) {
                         throw new Error(`HTTP error! Status: ${response.status}`);
                     }
-    
+
                     const responseData = await response.json();
                     console.log('API Response:', responseData);
                     setDisplayText(`API Response: ${JSON.stringify(responseData)}`);
