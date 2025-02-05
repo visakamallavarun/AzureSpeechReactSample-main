@@ -44,7 +44,7 @@ export default function App() {
                         throw new Error(`HTTP error! Status: ${response.status}`);
                     }
 
-                    const responseData = await response.json();
+                    const responseData = await response.text();
                     console.log('API Response:', responseData);
                     setDisplayText(`API Response: ${JSON.stringify(responseData)}`);
                 } catch (error) {
@@ -120,7 +120,7 @@ export default function App() {
 
     return (
         <Container className="app-container">
-            <h1 className="display-4 mb-3">Speech sample app</h1>
+            <h1 className="display-4 mb-3">Unanet POC</h1>
 
             <div className="row main-container">
                 <div className="col-6">

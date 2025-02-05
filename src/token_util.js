@@ -3,8 +3,7 @@ import Cookie from 'universal-cookie';
 
 export async function getTokenOrRefresh() {
     const cookie = new Cookie();
-    // const speechToken = cookie.get('speech-token');
-    const speechToken = undefined;
+    const speechToken = cookie.get('speech-token');
     if (speechToken === undefined) {
         try {
             const res = await axios.get('https://localhost:7049/api/speech/get-speech-token');
