@@ -113,15 +113,36 @@ export default function App() {
         const audioConfig = speechsdk.AudioConfig.fromWavFileInput(audioFile);
         const recognizer = new speechsdk.SpeechRecognizer(speechConfig, audioConfig);
 
-        recognizer.recognizeOnceAsync(result => {
-            let text;
-            if (result.reason === ResultReason.RecognizedSpeech) {
-                text = `RECOGNIZED: Text=${result.text}`
+        recognizer.recognizeOnceAsync(async (result) => {
+            if (result.reason === speechsdk.ResultReason.RecognizedSpeech) {
+                const recognizedText = result.text;
+                setDisplayText(`RECOGNIZED: Text=${recognizedText}`);
+    
+                // API call with recognized speech
+                try {
+                    const response = await fetch('https://localhost:7049/api/speech/selectProject', {
+                        method: 'POST',
+                        headers: {
+                            'Accept': '*/*',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ speechValue: recognizedText }) // Match API format
+                    });
+    
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+    
+                    const responseData = await response.json();
+                    console.log('API Response:', responseData);
+                    setDisplayText(`API Response: ${JSON.stringify(responseData)}`);
+                } catch (error) {
+                    console.error('Error calling API:', error);
+                    setDisplayText('Error calling API. Check console for details.');
+                }
             } else {
-                text = 'ERROR: Speech was cancelled or could not be recognized. Ensure your microphone is working properly.';
+                setDisplayText('ERROR: Speech was cancelled or could not be recognized. Ensure your microphone is working properly.');
             }
-
-            setDisplayText(fileInfo + text);
         });
     }
 
